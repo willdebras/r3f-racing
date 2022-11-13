@@ -103,32 +103,30 @@ export default function Player()
         const impulseStrength = 4 * delta
         const torqueStrength = 4 * delta
 
+        const directionCar = new THREE.Vector3()
+        carbody.current.getWorldDirection(directionCar)
+
         if(forward) {
             impulse.z -= impulseStrength
             torque.x -= torqueStrength
-            impulseCartesian.x += Math.cos(2*carbody.current.rotation.y) * impulseStrength
-            impulseCartesian.z += Math.cos(2*carbody.current.rotation.y) * impulseStrength
+            impulseCartesian.x += directionCar.x * impulseStrength
+            impulseCartesian.z += directionCar.z * impulseStrength
         }
         if(rightward) {
             impulse.x += impulseStrength
             torque.z -= torqueStrength
             steer.dir = 1
-            impulseCartesian.x -= Math.cos(2*carbody.current.rotation.y) * impulseStrength
-            impulseCartesian.z -= Math.sin(2*carbody.current.rotation.y) * impulseStrength
-            
         }
         if(backward) {
             impulse.z += impulseStrength
             torque.x += torqueStrength
-            impulseCartesian.x -= Math.cos(2*carbody.current.rotation.y) * impulseStrength
-            impulseCartesian.z -= Math.cos(2*carbody.current.rotation.y) * impulseStrength
+            impulseCartesian.x -= directionCar.x * impulseStrength
+            impulseCartesian.z -= directionCar.z * impulseStrength
         }
         if(leftward) {
             impulse.x -= impulseStrength
             torque.z += torqueStrength
             steer.dir = -1
-            impulseCartesian.x += Math.cos(2*carbody.current.rotation.y) * impulseStrength
-            impulseCartesian.z += Math.sin(2*carbody.current.rotation.y) * impulseStrength
         }
         
         body.current.applyImpulse(impulseCartesian)
@@ -141,8 +139,8 @@ export default function Player()
         
         steer.rotation = Math.atan2(smoothedCarPosition.x, smoothedCarPosition.z)
 
-        //body.current.applyImpulse(impulse)
-        //body.current.applyTorqueImpulse(torque)
+
+        const driftFactor = 1
 
         // car body
         const bodyPosition = body.current.translation()
@@ -150,24 +148,23 @@ export default function Player()
         carPosition.copy(bodyPosition)
 
         carbody.current.position.set(carPosition.x, carPosition.y - 0.7, carPosition.z)
-        carbody.current.rotation.set(0, carbody.current.rotation.y - (steer.dir * delta) , 0)
+        carbody.current.rotation.set(0, carbody.current.rotation.y - (steer.dir * delta * driftFactor) , 0)
         //carbody.current.rotation.set(0, steer.rotation , 0)
 
         // camera 
-        //const bodyPosition = body.current.translation()
 
         // const cameraPosition = new THREE.Vector3()
         // cameraPosition.copy(bodyPosition)
-        // cameraPosition.z += 4
+        // cameraPosition.z -= 4
         // cameraPosition.y += 0.65
 
         // const cameraTarget = new THREE.Vector3()
         // cameraTarget.copy(bodyPosition)
         // cameraTarget.y += 0.25
 
-        // lerp camera and target so they fall a little behind and have a smooth update
-        // smoothedCameraPosition.lerp(cameraPosition, 3 * delta)
-        // smoothedCameraTarget.lerp(cameraTarget, 5 * delta)
+        // //lerp camera and target so they fall a little behind and have a smooth update
+        // smoothedCameraPosition.lerp(cameraPosition, 2 * delta)
+        // smoothedCameraTarget.lerp(cameraTarget, 2 * delta)
 
         // state.camera.position.copy(smoothedCameraPosition)
         // state.camera.lookAt(smoothedCameraTarget)
