@@ -5,7 +5,7 @@ import Lights from './Lights.js'
 import Player from './Player.js'
 import Sandbox from './Sandbox.js'
 import useGame from './stores/useGame.js'
-// import Effects from './Effects.js'
+import Effects from './Effects.js'
 
 export default function Experience()
 {
@@ -18,7 +18,7 @@ export default function Experience()
 
     <OrbitControls />
 
-    <color args={ [ '#252731' ] } attach="background"></color>
+    <color args={ [ 'lightblue' ] } attach="background"></color>
 
     <Physics>
         <Debug />

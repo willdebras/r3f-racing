@@ -1,10 +1,14 @@
+import { useHelper } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
 import { useRef } from "react"
+import { DirectionalLightHelper } from "three"
 
 export default function Lights()
 {
 
     const light = useRef()
+
+    //useHelper(light, DirectionalLightHelper, 10)
 
     useFrame((state)=> {
         light.current.position.z = state.camera.position.z + 1 - 4
