@@ -1,5 +1,5 @@
-import { OrbitControls, useGLTF, useKeyboardControls } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
+import { OrbitControls, PerspectiveCamera, useGLTF, useKeyboardControls } from "@react-three/drei"
+import { useFrame, useThree } from "@react-three/fiber"
 import { BallCollider, CuboidCollider, RigidBody, useRapier } from "@react-three/rapier"
 import { useEffect, useRef, useState } from "react"
 import * as THREE from 'three'
@@ -11,6 +11,10 @@ export default function Player()
 
     const car = useGLTF('./car.gltf')
     const carbody = useRef()
+
+    // new ref for a new camera to replace our main camera
+    // this camera will sit in a group with the car body so it can rotate around it
+    const maincamera = useRef()
 
     const body = useRef()
     const [ subscribeToKeys, getKeys ] = useKeyboardControls()
@@ -52,7 +56,13 @@ export default function Player()
         body.current.setAngvel({x: 0, y: 0, z: 0})
     }
 
+    // helper function to update the camera state
+    const setThreeState = useThree((state) => state.set)
+
     useEffect(()=> {
+
+        // update camera on load to be camera grouped with car
+        void setThreeState({camera: maincamera.current})
 
         // subscribe to our store
         // need to provide selector in store and function to call when that selector changes
@@ -91,6 +101,8 @@ export default function Player()
     }, [])
 
     useFrame((state, delta)=> {
+
+        maincamera.current.updateMatrixWorld()
 
         // handle controls
         const { forward, backward, leftward, rightward, drift } = getKeys()
@@ -158,16 +170,19 @@ export default function Player()
         // // cameraPosition.y = 6
         // // cameraPosition -= directionCar
 
-        // const cameraTarget = new THREE.Vector3()
-        // cameraTarget.copy(bodyPosition)
-        // cameraTarget.y += 0.25
+        const cameraTarget = new THREE.Vector3()
+        cameraTarget.copy(bodyPosition)
+        cameraTarget.y += 0.25
 
         // //lerp camera and target so they fall a little behind and have a smooth update
         // smoothedCameraPosition.lerp(cameraPosition, delta)
-        // smoothedCameraTarget.lerp(cameraTarget, delta)
+
+        // TODO - get this lerping without looking like shit
+        // smoothedCameraTarget.lerp(cameraTarget, delta * 5)
 
         // state.camera.position.copy(smoothedCameraPosition)
-        // state.camera.lookAt(cameraTarget)
+        //state.camera.lookAt(smoothedCameraTarget)
+        state.camera.lookAt(cameraTarget)
         // state.camera.position.copy(cameraPosition)
 
         // phases
@@ -198,7 +213,10 @@ export default function Player()
                     <meshStandardMaterial flatShading color="mediumpurple" />
                 </mesh>
             </RigidBody>
-            <primitive ref={ carbody } object={ car.scene } rotation={[0, 0, 0]} />
+            <group ref={ carbody }>
+                <primitive object={ car.scene } />
+                <PerspectiveCamera ref={maincamera} position={[0, 2, -5]} />
+            </group>
         </group>
     </>
 }
