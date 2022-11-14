@@ -10,6 +10,7 @@ export default function Player()
 {
 
     const car = useGLTF('./car.gltf')
+    car.scene.traverse((mesh) => mesh.castShadow = true)
     const carbody = useRef()
 
     // new ref for a new camera to replace our main camera
@@ -159,20 +160,27 @@ export default function Player()
 
         // camera 
 
-        // const cameraPosition = new THREE.Vector3()
-        // const cameraOffset = new THREE.Vector3(-0, 5.0, 5.0)
         // const kartPosition = new THREE.Vector3()
         // carbody.current.getWorldPosition(kartPosition)
 
-        // cameraPosition.copy(bodyPosition).add(cameraOffset)
-        // // cameraPosition.z -= 4
-        // // cameraPosition.x -= 4
-        // // cameraPosition.y = 6
-        // // cameraPosition -= directionCar
+        const cameraPosition = new THREE.Vector3()
+        cameraPosition.copy(maincamera.current.position)
+
+        if(forward) {
+            const cameraOffset = new THREE.Vector3(0, 2.5, -13)
+            smoothedCameraPosition.lerpVectors(cameraPosition, cameraOffset, 2.5 * delta)
+            state.camera.position.copy(smoothedCameraPosition)
+        }
+
+        if(!forward) {
+            const cameraOffset = new THREE.Vector3(0, 3.5, -9)
+            smoothedCameraPosition.lerpVectors(cameraPosition, cameraOffset, 0.4 * delta)
+            state.camera.position.copy(smoothedCameraPosition)
+        }
 
         const cameraTarget = new THREE.Vector3()
         cameraTarget.copy(bodyPosition)
-        cameraTarget.y += 0.25
+        cameraTarget.y += 1.5
 
         // //lerp camera and target so they fall a little behind and have a smooth update
         // smoothedCameraPosition.lerp(cameraPosition, delta)
@@ -198,7 +206,7 @@ export default function Player()
     })
 
     return <>
-        <OrbitControls />d
+        <OrbitControls />
         <group>
             <RigidBody 
                 ref={ body } 
@@ -207,6 +215,7 @@ export default function Player()
                 linearDamping={ 1 }
                 angularDamping={ 4 }
             >
+                {/* <CuboidCollider args={[0.75, 0.3, 1.25]} position={[0, 0, 0]} restitution={0.2} friction={16} mass={0.5} /> */}
                 <BallCollider args={[0.6]} position={[0, 0, 0]} restitution={0.2} friction={16} mass={0.5} />
                 <mesh castShadow>
                     <boxGeometry args={ [ 0, 0, 0 ] } />
@@ -214,8 +223,8 @@ export default function Player()
                 </mesh>
             </RigidBody>
             <group ref={ carbody }>
-                <primitive object={ car.scene } />
-                <PerspectiveCamera ref={maincamera} position={[0, 2, -5]} />
+                <primitive object={ car.scene } castShadow />
+                <PerspectiveCamera ref={maincamera} position={[0, 3.5, -9]} />
             </group>
         </group>
     </>
