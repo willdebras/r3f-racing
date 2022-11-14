@@ -93,54 +93,49 @@ export default function Player()
     useFrame((state, delta)=> {
 
         // handle controls
-        const { forward, backward, leftward, rightward } = getKeys()
+        const { forward, backward, leftward, rightward, drift } = getKeys()
 
-        const impulse = {x: 0, y: 0, z: 0 }
-        const torque = {x: 0, y: 0, z: 0 }
-        const steer = {dir: 0, amt: 0, rotation: 0}
+        const steer = {dir: 0, amt: 0}
         const impulseCartesian = {x: 0, y:0, z:0}
 
-        const impulseStrength = 4 * delta
-        const torqueStrength = 4 * delta
+        const impulseStrength = 30 * delta
+        const torqueStrength = 30 * delta
 
         const directionCar = new THREE.Vector3()
         carbody.current.getWorldDirection(directionCar)
 
         if(forward) {
-            impulse.z -= impulseStrength
-            torque.x -= torqueStrength
             impulseCartesian.x += directionCar.x * impulseStrength
             impulseCartesian.z += directionCar.z * impulseStrength
         }
         if(rightward) {
-            impulse.x += impulseStrength
-            torque.z -= torqueStrength
             steer.dir = 1
         }
         if(backward) {
-            impulse.z += impulseStrength
-            torque.x += torqueStrength
             impulseCartesian.x -= directionCar.x * impulseStrength
             impulseCartesian.z -= directionCar.z * impulseStrength
         }
         if(leftward) {
-            impulse.x -= impulseStrength
-            torque.z += torqueStrength
             steer.dir = -1
         }
+
+        let driftFactor = 1
+
+        if(drift) {
+            driftFactor = 2.5
+            impulseCartesian.x = impulseCartesian.x * 0.6
+            impulseCartesian.z = impulseCartesian.z * 0.6
+        }
+
         
         body.current.applyImpulse(impulseCartesian)
+        //body.current.applyTorqueImpulse(impulseCartesian)
 
         steer.amt = 80 * steer.dir
 
         const velCurrent = body.current.linvel()
 
         smoothedCarPosition.lerp(impulseCartesian, 5 * delta)
-        
-        steer.rotation = Math.atan2(smoothedCarPosition.x, smoothedCarPosition.z)
-
-
-        const driftFactor = 1
 
         // car body
         const bodyPosition = body.current.translation()
@@ -149,25 +144,31 @@ export default function Player()
 
         carbody.current.position.set(carPosition.x, carPosition.y - 0.7, carPosition.z)
         carbody.current.rotation.set(0, carbody.current.rotation.y - (steer.dir * delta * driftFactor) , 0)
-        //carbody.current.rotation.set(0, steer.rotation , 0)
 
         // camera 
 
         // const cameraPosition = new THREE.Vector3()
-        // cameraPosition.copy(bodyPosition)
-        // cameraPosition.z -= 4
-        // cameraPosition.y += 0.65
+        // const cameraOffset = new THREE.Vector3(-0, 5.0, 5.0)
+        // const kartPosition = new THREE.Vector3()
+        // carbody.current.getWorldPosition(kartPosition)
+
+        // cameraPosition.copy(bodyPosition).add(cameraOffset)
+        // // cameraPosition.z -= 4
+        // // cameraPosition.x -= 4
+        // // cameraPosition.y = 6
+        // // cameraPosition -= directionCar
 
         // const cameraTarget = new THREE.Vector3()
         // cameraTarget.copy(bodyPosition)
         // cameraTarget.y += 0.25
 
         // //lerp camera and target so they fall a little behind and have a smooth update
-        // smoothedCameraPosition.lerp(cameraPosition, 2 * delta)
-        // smoothedCameraTarget.lerp(cameraTarget, 2 * delta)
+        // smoothedCameraPosition.lerp(cameraPosition, delta)
+        // smoothedCameraTarget.lerp(cameraTarget, delta)
 
         // state.camera.position.copy(smoothedCameraPosition)
-        // state.camera.lookAt(smoothedCameraTarget)
+        // state.camera.lookAt(cameraTarget)
+        // state.camera.position.copy(cameraPosition)
 
         // phases
         // check if we reached end
@@ -182,24 +183,22 @@ export default function Player()
     })
 
     return <>
-        <OrbitControls />
+        <OrbitControls />d
         <group>
             <RigidBody 
                 ref={ body } 
                 colliders={false}
-                restitution={ 0.2 }
-                friction={ 1 } 
                 position={ [ 0, 1, 0 ] }
-                linearDamping={ 0.5 }
-                angularDamping={ 0.5 }
+                linearDamping={ 1 }
+                angularDamping={ 4 }
             >
-                <BallCollider args={[0.6]} position={[0, 0, 0]} restitution={0.2} friction={1} mass={0.2} />
+                <BallCollider args={[0.6]} position={[0, 0, 0]} restitution={0.2} friction={16} mass={0.5} />
                 <mesh castShadow>
                     <boxGeometry args={ [ 0, 0, 0 ] } />
                     <meshStandardMaterial flatShading color="mediumpurple" />
                 </mesh>
             </RigidBody>
-            <primitive ref={ carbody} object={ car.scene } rotation={[0, 0, 0]} />
+            <primitive ref={ carbody } object={ car.scene } rotation={[0, 0, 0]} />
         </group>
     </>
 }
