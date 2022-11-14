@@ -8,6 +8,7 @@ import useGame from "./stores/useGame.js"
 
 export default function Player()
 {
+    const cargroup = useRef()
 
     const car = useGLTF('./car.gltf')
     car.scene.traverse((mesh) => mesh.castShadow = true)
@@ -106,16 +107,16 @@ export default function Player()
         maincamera.current.updateMatrixWorld()
 
         // handle controls
-        const { forward, backward, leftward, rightward, drift } = getKeys()
+        const { forward, backward, leftward, rightward, drift, jump  } = getKeys()
 
         const steer = {dir: 0, amt: 0}
         const impulseCartesian = {x: 0, y:0, z:0}
 
-        const impulseStrength = 30 * delta
-        const torqueStrength = 30 * delta
+        const impulseStrength = 36 * delta
+        const torqueStrength = 36 * delta
 
         const directionCar = new THREE.Vector3()
-        carbody.current.getWorldDirection(directionCar)
+        cargroup.current.getWorldDirection(directionCar)
 
         if(forward) {
             impulseCartesian.x += directionCar.x * impulseStrength
@@ -136,8 +137,13 @@ export default function Player()
 
         if(drift) {
             driftFactor = 2.5
-            impulseCartesian.x = impulseCartesian.x * 0.6
-            impulseCartesian.z = impulseCartesian.z * 0.6
+            impulseCartesian.x = impulseCartesian.x * 0.3
+            impulseCartesian.z = impulseCartesian.z * 0.3
+        } 
+        
+        if(jump) {
+            impulseCartesian.x = impulseCartesian.x * 2
+            impulseCartesian.z = impulseCartesian.z * 2
         }
 
         
@@ -155,24 +161,33 @@ export default function Player()
         const carPosition = new THREE.Vector3()
         carPosition.copy(bodyPosition)
 
-        carbody.current.position.set(carPosition.x, carPosition.y - 0.7, carPosition.z)
-        carbody.current.rotation.set(0, carbody.current.rotation.y - (steer.dir * delta * driftFactor) , 0)
+        cargroup.current.position.set(carPosition.x, carPosition.y - 0.7, carPosition.z)
+        cargroup.current.rotation.set(0, cargroup.current.rotation.y - (steer.dir * delta * driftFactor) , 0)
+
+        // wheel rotation
+        if(leftward || rightward) {
+            //TODO - handle wheel rotation, model animations in blender
+            //carbody.current.children[0].children[0].children.slice(1, 5).forEach((el, i)=> {
+                // el.rotation.y = Math.PI/4
+            //})
+        }
 
         // camera 
-
-        // const kartPosition = new THREE.Vector3()
-        // carbody.current.getWorldPosition(kartPosition)
 
         const cameraPosition = new THREE.Vector3()
         cameraPosition.copy(maincamera.current.position)
 
         if(forward) {
             const cameraOffset = new THREE.Vector3(0, 2.5, -13)
+            // on boost, increase offset a bit
+            if(jump) {
+                cameraOffset.set(0, 2.5, -20)
+            }
             smoothedCameraPosition.lerpVectors(cameraPosition, cameraOffset, 2.5 * delta)
             state.camera.position.copy(smoothedCameraPosition)
         }
 
-        if(!forward) {
+        if(!forward || leftward || rightward) {
             const cameraOffset = new THREE.Vector3(0, 3.5, -9)
             smoothedCameraPosition.lerpVectors(cameraPosition, cameraOffset, 0.4 * delta)
             state.camera.position.copy(smoothedCameraPosition)
@@ -214,6 +229,7 @@ export default function Player()
                 position={ [ 0, 1, 0 ] }
                 linearDamping={ 1 }
                 angularDamping={ 4 }
+                gravityScale={3}
             >
                 {/* <CuboidCollider args={[0.75, 0.3, 1.25]} position={[0, 0, 0]} restitution={0.2} friction={16} mass={0.5} /> */}
                 <BallCollider args={[0.6]} position={[0, 0, 0]} restitution={0.2} friction={16} mass={0.5} />
@@ -222,8 +238,8 @@ export default function Player()
                     <meshStandardMaterial flatShading color="mediumpurple" />
                 </mesh>
             </RigidBody>
-            <group ref={ carbody }>
-                <primitive object={ car.scene } castShadow />
+            <group ref={ cargroup }>
+                <primitive object={ car.scene } castShadow ref={carbody} />
                 <PerspectiveCamera ref={maincamera} position={[0, 3.5, -9]} />
             </group>
         </group>

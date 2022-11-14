@@ -6,6 +6,7 @@ import Player from './Player.js'
 import Sandbox from './Sandbox.js'
 import useGame from './stores/useGame.js'
 import Effects from './Effects.js'
+import Course from './Course.js'
 
 export default function Experience()
 {
@@ -21,9 +22,10 @@ export default function Experience()
     <color args={ [ 'lightblue' ] } attach="background"></color>
 
     <Physics>
-        <Debug />
+        <Course />
+        {/* <Debug /> */}
         <Lights />
-        <Sandbox />
+        {/* <Sandbox /> */}
         {/* <Level count={ blocksCount } seed={ blocksSeed } /> */}
         <Player />
     </Physics>
