@@ -13,6 +13,9 @@ export default function Interface()
     // should create a reference 
     const time = useRef()
 
+    // boost value
+    const boost = useRef()
+
     const forward = useKeyboardControls((state)=> state.forward)
     const backward = useKeyboardControls((state)=> state.backward)
     const leftward = useKeyboardControls((state)=> state.leftward)
@@ -37,6 +40,10 @@ export default function Interface()
 
             // update text with reference
             if(time.current) time.current.textContent = elapsedTime
+
+            // get and use boost value
+            boost.current.style.width = `${state.boost * 2}px`
+            console.log(state.boost)
 
         })
 
@@ -66,7 +73,7 @@ export default function Interface()
             </div>
         </div>
         <div className="boostMeter">
-            <div className="boostValue"></div>
+            <div className="boostValue" ref={boost}></div>
         </div>
     </div>
 }

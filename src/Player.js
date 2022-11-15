@@ -34,6 +34,9 @@ export default function Player()
     const end = useGame((state) => state.end)
     const restart = useGame((state) => state.restart)
     const blocksCount = useGame((state) => state.blocksCount)
+    const setBoost = useGame((state) => state.setBoost)
+
+    const clamp = (min, max) => (value) => value < min ? min : value > max ? max : value
 
     const jump = () => {
         // origin of body when we make the cast
@@ -143,6 +146,7 @@ export default function Player()
             impulseCartesian.z = impulseCartesian.z * 0.3
             if(leftward | rightward) {
                 boost += delta * 30
+                boost = clamp(0, 100)(boost)
             }
         } 
         
@@ -155,9 +159,9 @@ export default function Player()
 
             }
         }
-        console.log(boost)
 
-        
+        setBoost(boost)
+
         body.current.applyImpulse(impulseCartesian)
         //body.current.applyTorqueImpulse(impulseCartesian)
 

@@ -10,6 +10,7 @@ export default create(subscribeWithSelector((set) =>
         startTime: 0,
         endTime: 0,
         phase: 'ready',
+        boost: 0,
         // creates a method corresponding with the start property that calls that set function i.e. returns new state
         // here we return an update to phase
         start: () => {
@@ -32,6 +33,11 @@ export default create(subscribeWithSelector((set) =>
             set((state) => {
                 if(state.phase === 'playing') return {phase: 'ended', endTime: Date.now() }
                 return {}
+            })
+        },
+        setBoost: (value) => {
+            set((state) => {
+                return({boost: value})
             })
         }
     }
