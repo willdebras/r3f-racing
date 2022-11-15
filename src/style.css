@@ -87,3 +87,20 @@ body,
  {
      background: #e43e2899;
  }
+
+ .boostMeter {
+    width:200px;
+    border:1px solid white;
+    height:50px;
+    position:absolute;
+    top:20px;
+    right:20px;
+    padding:4px;
+ }
+
+ .boostValue {
+    background-color:salmon;
+    width:8px;
+    height:100%;
+    border:1px solid mediumvioletred;
+ }

@@ -65,5 +65,8 @@ export default function Interface()
                 <div className={`key large ${ jump ? 'active' : ''}`}></div>
             </div>
         </div>
+        <div className="boostMeter">
+            <div className="boostValue"></div>
+        </div>
     </div>
 }

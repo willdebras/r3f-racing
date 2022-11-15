@@ -102,6 +102,8 @@ export default function Player()
 
     }, [])
 
+    let boost = 0
+
     useFrame((state, delta)=> {
 
         maincamera.current.updateMatrixWorld()
@@ -139,12 +141,21 @@ export default function Player()
             driftFactor = 2.5
             impulseCartesian.x = impulseCartesian.x * 0.3
             impulseCartesian.z = impulseCartesian.z * 0.3
+            if(leftward | rightward) {
+                boost += delta * 30
+            }
         } 
         
         if(jump) {
-            impulseCartesian.x = impulseCartesian.x * 2
-            impulseCartesian.z = impulseCartesian.z * 2
+            if(boost > 0) {
+
+                impulseCartesian.x = impulseCartesian.x * 2
+                impulseCartesian.z = impulseCartesian.z * 2
+                boost -= delta * 50
+
+            }
         }
+        console.log(boost)
 
         
         body.current.applyImpulse(impulseCartesian)
@@ -180,7 +191,7 @@ export default function Player()
         if(forward) {
             const cameraOffset = new THREE.Vector3(0, 2.5, -13)
             // on boost, increase offset a bit
-            if(jump) {
+            if(jump & boost > 0) {
                 cameraOffset.set(0, 2.5, -20)
             }
             smoothedCameraPosition.lerpVectors(cameraPosition, cameraOffset, 2.5 * delta)
