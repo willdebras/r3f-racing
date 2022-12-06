@@ -10,7 +10,7 @@ export default function Player()
 {
     const cargroup = useRef()
 
-    const car = useGLTF('./car.gltf')
+    const car = useGLTF('./hotdogcar.glb')
     car.scene.traverse((mesh) => mesh.castShadow = true)
     const carbody = useRef()
 
@@ -107,6 +107,8 @@ export default function Player()
 
     let boost = 0
 
+    let wheels = ['wheelfrontL', 'wheelfrontR']
+
     useFrame((state, delta)=> {
 
         maincamera.current.updateMatrixWorld()
@@ -117,7 +119,7 @@ export default function Player()
         const steer = {dir: 0, amt: 0}
         const impulseCartesian = {x: 0, y:0, z:0}
 
-        const impulseStrength = 36 * delta
+        const impulseStrength = 48 * delta
         const torqueStrength = 36 * delta
 
         const directionCar = new THREE.Vector3()
@@ -141,7 +143,7 @@ export default function Player()
         let driftFactor = 1
 
         if(drift) {
-            driftFactor = 2.5
+            driftFactor = 2
             impulseCartesian.x = impulseCartesian.x * 0.3
             impulseCartesian.z = impulseCartesian.z * 0.3
             if(leftward | rightward) {
@@ -153,8 +155,8 @@ export default function Player()
         if(jump) {
             if(boost > 0) {
 
-                impulseCartesian.x = impulseCartesian.x * 2
-                impulseCartesian.z = impulseCartesian.z * 2
+                impulseCartesian.x = impulseCartesian.x * 1.5
+                impulseCartesian.z = impulseCartesian.z * 1.5
                 boost -= delta * 50
 
             }
@@ -182,10 +184,28 @@ export default function Player()
         // wheel rotation
         if(leftward || rightward) {
             //TODO - handle wheel rotation, model animations in blender
-            //carbody.current.children[0].children[0].children.slice(1, 5).forEach((el, i)=> {
-                // el.rotation.y = Math.PI/4
-            //})
+            carbody.current.children.forEach((el, i)=> {
+                if(wheels.includes(el.name)) {
+                    console.log(el.name)
+                    el.rotation.y = Math.PI/6 * - (steer.dir)
+                }
+            })
+        } else {
+            carbody.current.children.forEach((el, i)=> {
+                if(wheels.includes(el.name)) {
+                    el.rotation.y = 0
+                }
+            })
         }
+
+        // TODO - wheel rotation bidimensional
+        // if(forward) {
+        //     carbody.current.children.forEach((el, i)=> {
+        //         if(wheels.includes(el.name)) {
+        //             el.rotation.x += 2
+        //         }
+        //     })
+        // }
 
         // camera 
 
@@ -193,24 +213,24 @@ export default function Player()
         cameraPosition.copy(maincamera.current.position)
 
         if(forward) {
-            const cameraOffset = new THREE.Vector3(0, 2.5, -13)
+            const cameraOffset = new THREE.Vector3(0, 5, -17)
             // on boost, increase offset a bit
             if(jump & boost > 0) {
-                cameraOffset.set(0, 2.5, -20)
+                cameraOffset.set(0, 4.5, -25)
             }
             smoothedCameraPosition.lerpVectors(cameraPosition, cameraOffset, 2.5 * delta)
             state.camera.position.copy(smoothedCameraPosition)
         }
 
         if(!forward || leftward || rightward) {
-            const cameraOffset = new THREE.Vector3(0, 3.5, -9)
+            const cameraOffset = new THREE.Vector3(0, 7, -15)
             smoothedCameraPosition.lerpVectors(cameraPosition, cameraOffset, 0.4 * delta)
             state.camera.position.copy(smoothedCameraPosition)
         }
 
         const cameraTarget = new THREE.Vector3()
         cameraTarget.copy(bodyPosition)
-        cameraTarget.y += 1.5
+        cameraTarget.y += 1
 
         // //lerp camera and target so they fall a little behind and have a smooth update
         // smoothedCameraPosition.lerp(cameraPosition, delta)
@@ -247,15 +267,15 @@ export default function Player()
                 gravityScale={3}
             >
                 {/* <CuboidCollider args={[0.75, 0.3, 1.25]} position={[0, 0, 0]} restitution={0.2} friction={16} mass={0.5} /> */}
-                <BallCollider args={[0.6]} position={[0, 0, 0]} restitution={0.2} friction={16} mass={0.5} />
+                <BallCollider args={[1.0]} position={[0, 0, 0]} restitution={0.2} friction={16} mass={0.5} />
                 <mesh castShadow>
                     <boxGeometry args={ [ 0, 0, 0 ] } />
                     <meshStandardMaterial flatShading color="mediumpurple" />
                 </mesh>
             </RigidBody>
             <group ref={ cargroup }>
-                <primitive object={ car.scene } castShadow ref={carbody} />
-                <PerspectiveCamera ref={maincamera} position={[0, 3.5, -9]} />
+                <primitive object={ car.scene } castShadow ref={carbody} scale={0.6} />
+                <PerspectiveCamera ref={maincamera} position={[0, 7, -15]} />
             </group>
         </group>
     </>
