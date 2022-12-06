@@ -43,7 +43,7 @@ export default function Interface()
 
             // get and use boost value
             boost.current.style.width = `${state.boost * 2}px`
-            console.log(state.boost)
+            // console.log(state.boost)
 
         })
 
