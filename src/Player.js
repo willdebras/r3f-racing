@@ -29,6 +29,7 @@ export default function Player()
     const [smoothedCameraPosition ] = useState(()=> new THREE.Vector3(12, 12, 12))
     const [ smoothedCameraTarget ] = useState(()=> new THREE.Vector3())
     const [ smoothedCarPosition ] = useState(()=> new THREE.Vector3())
+    const [ smoothedWheelRotation ] = useState(()=> new THREE.Vector3())
     
     const start = useGame((state) => state.start)
     const end = useGame((state) => state.end)
@@ -107,7 +108,9 @@ export default function Player()
 
     let boost = 0
 
-    let wheels = ['wheelfrontL', 'wheelfrontR']
+    let wheels = ['wheelfrontL', 'wheelfrontR', 'wheelbackL', 'wheelbackR']
+    let wheelsFront = ['wheelfrontL', 'wheelfrontR']
+    let wheelsBack = ['wheelbackL', 'wheelbackR']
 
     useFrame((state, delta)=> {
 
@@ -181,28 +184,79 @@ export default function Player()
         cargroup.current.position.set(carPosition.x, carPosition.y - 0.7, carPosition.z)
         cargroup.current.rotation.set(0, cargroup.current.rotation.y - (steer.dir * delta * driftFactor) , 0)
 
-        // wheel rotation
+        let yAxis = new THREE.Vector3(0, 1, 0)
+        let yRot = 0
+        let yQuaternion = new THREE.Quaternion()
+
+        let xAxis = new THREE.Vector3(1, 0, 0)
+        let xRot = 0
+        let xQuaternion = new THREE.Quaternion()
+
         if(leftward || rightward) {
-            //TODO - handle wheel rotation, model animations in blender
-            carbody.current.children.forEach((el, i)=> {
-                if(wheels.includes(el.name)) {
-                    console.log(el.name)
-                    el.rotation.y = Math.PI/6 * - (steer.dir)
-                }
-            })
+            yRot = Math.PI / 6 * - (steer.dir)
         } else {
-            carbody.current.children.forEach((el, i)=> {
-                if(wheels.includes(el.name)) {
-                    el.rotation.y = 0
-                }
-            })
+            yRot = 0
         }
+        yQuaternion.setFromAxisAngle(yAxis, yRot)
+
+        if(forward || backward) {
+            if(forward) xRot = carbody.current.children[5].rotation.x - 2
+            if(backward) xRot = carbody.current.children[5].rotation.x + 2
+        } else {
+            xRot = carbody.current.children[5].rotation.x
+        }
+        xQuaternion.setFromAxisAngle(xAxis, xRot)
+
+        carbody.current.children.forEach((el, i)=> {
+
+            if(wheelsFront.includes(el.name)) {
+                smoothedWheelRotation.lerpVectors(
+                    el.rotation, 
+                    new THREE.Vector3(0, yRot, 0), 
+                    0.4
+                )
+                el.rotation.y = smoothedWheelRotation.y
+                // el.quaternion.multiplyQuaternions(xQuaternion, yQuaternion)
+            }
+            if(wheelsBack.includes(el.name)) {
+                el.applyQuaternion(xQuaternion)
+                // el.quaternion.multiplyQuaternions(xQuaternion, yQuaternion)
+            }
+
+        })
+
+        // wheel rotation
+        // if(leftward || rightward) {
+        //     //TODO - handle wheel rotation, model animations in blender
+        //     carbody.current.children.forEach((el, i)=> {
+        //         if(wheels.includes(el.name)) {
+        //             console.log(el.name)
+        //             const yAxis = new THREE.Vector3(0, 1, 0)
+        //             const yRot = Math.PI / 6
+        //             const yQuaternion = new THREE.Quaternion()
+        //             yQuaternion.setFromAxisAngle(yAxis, yRot)
+        //             el.applyQuaternion(yQuaternion)
+        //             //el.rotation.y = Math.PI/6 * - (steer.dir)
+        //         }
+        //     })
+        // } else {
+        //     carbody.current.children.forEach((el, i)=> {
+        //         if(wheels.includes(el.name)) {
+        //             el.rotation.y = 0
+        //         }
+        //     })
+        // }
 
         // TODO - wheel rotation bidimensional
         // if(forward) {
         //     carbody.current.children.forEach((el, i)=> {
         //         if(wheels.includes(el.name)) {
-        //             el.rotation.x += 2
+        //             const xAxis = new THREE.Vector3(1, 0, 0)
+        //             const xRot = Math.PI / 6
+        //             const xQuaternion = new THREE.Quaternion()
+        //             xQuaternion.setFromAxisAngle(xAxis, xRot)
+        //             el.applyQuaternion(xQuaternion)
+        //             // el.rotation.x += 2
         //         }
         //     })
         // }
