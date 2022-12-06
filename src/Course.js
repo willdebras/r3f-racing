@@ -4,10 +4,11 @@ import * as THREE from 'three'
 
 THREE.ColorManagement.legacyMode = false
 
-
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1)
 const floor1Material = new THREE.MeshStandardMaterial({ color: 'lightgreen', metalness: 0, roughness: 0 })
 const wallMaterial = new THREE.MeshStandardMaterial({ color: '#887777', metalness: 0, roughness: 0 })
+
+// TODO slow on collision to non road ground
 
 export default function Course() {
 
