@@ -6,6 +6,8 @@ import * as THREE from 'three'
 import { Group } from "three"
 import useGame from "./stores/useGame.js"
 
+import Trails from './Trails.js'
+
 export default function Player()
 {
     const cargroup = useRef()
@@ -329,6 +331,8 @@ export default function Player()
             </RigidBody>
             <group ref={ cargroup }>
                 <primitive object={ car.scene } castShadow ref={carbody} scale={0.6} />
+                {/* trails! */}
+                <Trails />
                 <PerspectiveCamera ref={maincamera} position={[0, 7, -15]} />
             </group>
         </group>
