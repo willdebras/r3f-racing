@@ -1,10 +1,18 @@
 import { DepthOfField, EffectComposer, SSR } from "@react-three/postprocessing"
+import { useThree, extend } from '@react-three/fiber'
+import * as THREE from 'three'
+
+import { useMemo } from 'react'
+// import { RenderPixelatedPass } from 'three-stdlib'
+// extend({ RenderPixelatedPass })
 
 // import Motion from './Motion.js'
 
 export default function Effects()
 {
 
+    // const { size, scene, camera } = useThree()
+    // const resolution = useMemo(() => new THREE.Vector2(size.width, size.height), [size])
 
     // const motionRef = useRef()
 
@@ -19,6 +27,7 @@ export default function Effects()
             focusLength={ 0.2 }
             bokehScale={ 3 }
         />
+        {/* <renderPixelatedPass args={[resolution, 10, scene, camera]} /> */}
         {/* <MotionBlur 
             ref={ motionRef }
             { ...motionProps }
