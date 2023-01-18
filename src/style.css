@@ -10,6 +10,17 @@ body,
     background: ivory;
 }
 
+:root {
+    --grey:rgba(0, 0, 0, 0.2);
+    --lighter-grey:rgba(0, 0, 0, 0.05);
+    --darker-grey:rgba(0, 0, 0, 0.4);
+}
+
+@font-face {
+    font-family: 'dseg';
+    src: url('fonts/DSEG7Modern-BoldItalic.woff');
+}
+
 /* interface */
 .interface {
     position: fixed;
@@ -21,16 +32,54 @@ body,
     font-family: 'Bebas Neue', cursive;
 }
 
+.checkered {
+    background-image: 
+    linear-gradient(45deg, var(--grey) 25%, var(--lighter-grey) 25%), 
+    linear-gradient(-45deg, var(--grey) 25%, var(--lighter-grey) 25%), 
+    linear-gradient(45deg, var(--lighter-grey) 75%, var(--grey) 75%), 
+    linear-gradient(-45deg, var(--lighter-grey) 75%, var(--grey) 75%);
+    background-size: 66px 66px;
+    background-position: 0 0, 0 33px, 33px -33px, -33px 0px;
+
+    border: solid 2px white;
+    border-style: double;
+    box-shadow: 0 0 0 4px var(--grey);
+    border-radius: 4px;
+    transform: skew(-8deg);
+    text-shadow: rgb(70, 70, 70) 1px 2px;
+    outline:2px solid white;
+    outline-offset: 5px;
+}
+
 .time {
     position:absolute;
-    top: 10%;
-    left: 0;
-    width: 100%;
+    font-family: 'dseg', Fallback, sans-serif;
+    top: 6%;
+    right: -8px;
+    width: max-content;
     color: #ffffff;
-    font-size: 4em;
-    background: #00000033;
+    font-size: 3em;
+    padding:6px 32px;
+    /* background: #00000033; */
     padding-top: 5px;
     text-align: center;
+}
+
+.lap {
+    position:absolute;
+    font-family: 'dseg', Fallback, sans-serif;
+    top: 6%;
+    left: 60px;
+    width: max-content;
+    color: #ffffff;
+    font-size: 2em;
+    padding:6px 14px;
+    /* background: #00000033; */
+    text-align: center;
+}
+
+.slash {
+    font-size:1.3em;
 }
 
 .restart {
@@ -58,9 +107,18 @@ body,
  .controls
  {
      position: absolute;
-     bottom: 10%;
-     left: 0;
-     width: 100%;
+     bottom: 56px;
+     left: 180px;
+     width: max-content;
+ }
+
+ .shift {
+    position:relative;
+    width:160px;
+    height:240px;
+    position: absolute;
+    bottom: 0px;
+    left: 12px;
  }
  
  .controls .raw
@@ -93,9 +151,10 @@ body,
     border:1px solid white;
     height:50px;
     position:absolute;
-    top:20px;
+    bottom:100px;
     right:20px;
     padding:4px;
+    transform:rotate(-90deg);
  }
 
  .boostValue {

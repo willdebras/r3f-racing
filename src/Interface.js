@@ -1,7 +1,9 @@
 import { useKeyboardControls } from "@react-three/drei"
 import { addEffect } from "@react-three/fiber"
-import { useEffect, useRef } from "react"
+import React, { useEffect, useRef } from "react"
 import useGame from "./stores/useGame.js"
+
+import {ReactComponent as Handbreak} from './svgs/shifter.svg'
 
 export default function Interface() 
 {
@@ -16,10 +18,17 @@ export default function Interface()
     // boost value
     const boost = useRef()
 
+    // lap value
+    const lap = useRef()
+
+    // handbreak style and fill
+    const handBreak = useRef()
+
     const forward = useKeyboardControls((state)=> state.forward)
     const backward = useKeyboardControls((state)=> state.backward)
     const leftward = useKeyboardControls((state)=> state.leftward)
     const rightward = useKeyboardControls((state)=> state.rightward)
+    const drift = useKeyboardControls((state)=> state.drift)
     const jump = useKeyboardControls((state)=> state.jump)
 
     useEffect(()=>{
@@ -52,13 +61,28 @@ export default function Interface()
         }
     }, [])
 
+    useEffect(()=> {
+        if(drift) {
+            console.log(drift)
+            handBreak.current.style.fill = '#e43e2899'
+        } else {
+            handBreak.current.style.fill = '#ffffff44'
+        }
+    }, [drift])
+
     return <div className="interface">
         {/* time */}
-        <div className="time" ref={time}></div>
+        <div className="time checkered" ref={time}></div>
+        <div className="lap checkered" ref={lap}>
+            Lap <span className='lapNum'>1</span> <span className='slash'> /</span>3
+        </div>
         {/* restart */}
         { phase === 'ended' && <div className="restart" onClick={restart}>RESTART</div> }
 
         {/* controls */}
+        <div className="shift">
+                <Handbreak ref={handBreak} />
+        </div>
         <div className="controls">
             <div className="raw">
                 <div className={ `key ${ forward ? 'active' : ''}` }></div>
