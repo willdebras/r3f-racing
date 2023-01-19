@@ -12,6 +12,8 @@ export default function Player()
 {
     const cargroup = useRef()
 
+    const [previousPosition, setPosition] = useState([0, 0])
+
     const car = useGLTF('./hotdogcar.glb')
     car.scene.traverse((mesh) => mesh.castShadow = true)
     const carbody = useRef()
@@ -308,6 +310,44 @@ export default function Player()
         // if(bodyPosition.y < - 4) {
         //     restart()
         // }
+
+        // Idea behind velocity is that we have the position of the cargroup at delta_t1 and then at delta_t2.
+        // Because this is a car, we only care about x and y coordinates from this position.
+        // We can use the two point coordinate plane distance formula to calculate distance between one position and the second.
+        // Then the velocity is equal to units / delta or distance / time.
+        // We can normalize the calculated velocity to something that makes sense in miles or kilometers
+
+            // Set current car position using cargroup reference and its current x and z positions.
+            const carPositionNew = [cargroup.current.position.x, cargroup.current.position.z]
+
+            // Get the last x and y positions.
+            let x1 = previousPosition[0]
+            let z1 = previousPosition[1]
+
+            // Get the current x and y positions.
+            let x2 = carPositionNew[0]
+            let z2 = carPositionNew[1]
+
+            // Get distance using two point distance formula
+            let distance = Math.sqrt(
+                Math.pow((x2 - x1), 2) + Math.pow((z2 - z1), 2)
+            )
+
+            // Distance is one unit.
+            // Delta is one frame and we have 60 frames a second.
+            // If we say that one unit is one meter (reasonable?), then can convert to km/h
+            // We can use distance as it is meters / frame
+            // Then can convert meters to kilometers with (3600 / 1000)
+            // Then can convert frames to hours with ( 1 / ( 1 / 60 ) )
+            let kmh = distance * (3600 / 1000) * ( 1 / (1 / 60) )
+
+            // TODO: Getting 0 values in this. Not sure what from.
+            // TODO: Pass this up to UI so can add as overlay.
+            // TODO: Boost not working?
+
+            // Set new position as last position for next frame
+            setPosition(carPositionNew)
+            console.log(kmh)
 
     })
 
